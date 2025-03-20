@@ -1,5 +1,8 @@
 import streamlit as st
 
+# Configuración de la página
+st.set_page_config(page_title="Nomina Checker", page_icon="💲")
+
 # Sidebar para entradas del usuario
 st.sidebar.header("Datos del Piloto")
 
@@ -141,7 +144,7 @@ if tipo_piloto == "Comandante":
     st.write(f"**Plus TRI/TRE:** {tri_tre:.2f} €")
     st.write(f"**Prima Horas LIFUS:** {prima_lifus:.2f} €")
     st.write(f"**Prima Simulador:** {prima_simulador:.2f} €")
-st.write(f"**Total Devengos:** {total_devengos:.2f} €")
+st.subheader(f"**Total Devengos:** {total_devengos:.2f} €")
 
 st.write("---")
 st.write(f"**Seguridad Social:** -{seguridad_social:.2f} €")
