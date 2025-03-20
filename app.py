@@ -105,7 +105,7 @@ else:
     es_tri_tre, horas_lifus = False, 0.0
 
 # Porcentaje de retención IRPF
-irpf_porcentaje = st.sidebar.slider("Retención IRPF (%)", 0.0, 30.0, 19.25, step=0.01)
+irpf_porcentaje = st.sidebar.number_input("Retención IRPF (%)", min_value=0.0, step=0.01, value=0.0)
 
 # Cálculo de Devengos
 salario_base_mensual = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
