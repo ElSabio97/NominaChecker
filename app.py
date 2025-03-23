@@ -114,7 +114,7 @@ st.sidebar.header("Conceptos Extras")
 extras = st.sidebar.text_input(
     "Extras (ej. 'Media Días Vacaciones R: 80.00 € - Pagos pendientes de nóminas anteriores')",
     value="",
-    help="Introduce conceptos adicionales con su importe y notas, si aplica."
+    help="Introduce devengos adicionales que no encajen con los conceptos de arriba."
 )
 
 # Cálculo de Devengos
@@ -182,23 +182,35 @@ importe_liquido = total_devengos - total_deducciones
 
 # Mostrar resultados
 st.header("Resumen de la Nómina")
-st.write(f"**Salario Base:** {salario_base_mensual:.2f} €")
-st.write(f"**Paga Extra (prorrateada):** {paga_extra_mensual:.2f} €")
-st.write(f"**Prima Disponibilidad:** {prima_disponibilidad_mensual:.2f} €")
-if tipo_piloto == "Comandante":
+if salario_base_mensual > 0:
+    st.write(f"**Salario Base:** {salario_base_mensual:.2f} €")
+if paga_extra_mensual > 0:
+    st.write(f"**Paga Extra (prorrateada):** {paga_extra_mensual:.2f} €")
+if prima_disponibilidad_mensual > 0:
+    st.write(f"**Prima Disponibilidad:** {prima_disponibilidad_mensual:.2f} €")
+if tipo_piloto == "Comandante" and prima_responsabilidad_mensual > 0:
     st.write(f"**Prima Responsabilidad:** {prima_responsabilidad_mensual:.2f} €")
-st.write(f"**Prima Hora Vuelo:** {horas_vuelo:.2f} h × {prima_hora_vuelo:.2f} €/h = {prima_hora_vuelo_total:.2f} €")
+if prima_hora_vuelo_total > 0:
+    st.write(f"**Prima Hora Vuelo:** {prima_hora_vuelo_total:.2f} €")
 if plus_nocturnidad_total > 0:
-    st.write(f"**Plus Nocturnidad:** {horas_nocturnas:.2f} h × {plus_nocturnidad_por_hora:.2f} €/h = {plus_nocturnidad_total:.2f} €")
-st.write(f"**Prima Horas Sparring:** {prima_sparring_total:.2f} €")
-st.write(f"**Imaginaria:** {dias_imaginaria} días × {imaginaria:.2f} €/día = {imaginaria_total:.2f} €")
-st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
-st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
-st.write(f"**Dieta Curso:** {dieta_curso_total:.2f} €")
-st.write(f"**Compensación Vacaciones:** {vacaciones_total:.2f} €")
+    st.write(f"**Plus Nocturnidad:** {plus_nocturnidad_total:.2f} €")
+if prima_sparring_total > 0:
+    st.write(f"**Prima Horas Sparring:** {prima_sparring_total:.2f} €")
+if imaginaria_total > 0:
+    st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
+if dieta_vuelo_total > 0:
+    st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
+if dieta_pernocta_total > 0:
+    st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
+if dieta_curso_total > 0:
+    st.write(f"**Dieta Curso:** {dieta_curso_total:.2f} €")
+if vacaciones_total > 0:
+    st.write(f"**Compensación Vacaciones:** {vacaciones_total:.2f} €")
 if tipo_piloto == "Comandante":
-    st.write(f"**Plus TRI/TRE:** {tri_tre_total:.2f} €")
-    st.write(f"**Prima Horas LIFUS:** {prima_lifus_total:.2f} €")
+    if tri_tre_total > 0:
+        st.write(f"**Plus TRI/TRE:** {tri_tre_total:.2f} €")
+    if prima_lifus_total > 0:
+        st.write(f"**Prima Horas LIFUS:** {prima_lifus_total:.2f} €")
 
 # Mostrar concepto extra si existe
 if extras:
