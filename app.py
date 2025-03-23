@@ -112,13 +112,17 @@ irpf_porcentaje = st.sidebar.number_input("Retención IRPF (%)", min_value=0.0, 
 # Campo simplificado para "Extras"
 st.sidebar.header("Conceptos Extras")
 extras = st.sidebar.text_input(
-    "Extras (ej. 'Media Días Vacaciones R: 80.00 € - Concepto no claro')",
+    "Extras (ej. 'Media Días Vacaciones R: 80.00 € - Pagos pendientes de nóminas anteriores')",
     value="",
     help="Introduce conceptos adicionales con su importe y notas, si aplica."
 )
 
 # Cálculo de Devengos
-salario_base_mensual = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
+# Salario Base (sin incluir pagas extras) y Paga Extra prorrateada
+salario_base_mensual_total = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
+paga_extra_mensual = (salario_base_mensual_total / 7)  # Prorrateo de 1 paga extra (1.808,33 / 7 = 258,33 €)
+salario_base_mensual = salario_base_mensual_total - paga_extra_mensual  # Salario base ajustado
+
 prima_disponibilidad_mensual = (prima_disponibilidad_anual[nivel_salarial] / 12) * (dias_alta / 30)
 prima_responsabilidad_mensual = (prima_responsabilidad_anual[nivel_salarial] / 12) * (dias_alta / 30) if tipo_piloto == "Comandante" else 0
 
@@ -150,7 +154,7 @@ prima_lifus_total = horas_lifus * prima_lifus if tipo_piloto == "Comandante" els
 
 # Total Devengos (sin incluir Extras por ahora)
 total_devengos = (
-    salario_base_mensual + prima_disponibilidad_mensual + prima_responsabilidad_mensual +
+    salario_base_mensual + paga_extra_mensual + prima_disponibilidad_mensual + prima_responsabilidad_mensual +
     prima_hora_vuelo_total + plus_nocturnidad_total + prima_sparring_total + imaginaria_total +
     dieta_vuelo_total + dieta_pernocta_total + dieta_curso_total + vacaciones_total +
     tri_tre_total + prima_lifus_total
@@ -179,14 +183,15 @@ importe_liquido = total_devengos - total_deducciones
 # Mostrar resultados
 st.header("Resumen de la Nómina")
 st.write(f"**Salario Base:** {salario_base_mensual:.2f} €")
+st.write(f"**Paga Extra (prorrateada):** {paga_extra_mensual:.2f} €")
 st.write(f"**Prima Disponibilidad:** {prima_disponibilidad_mensual:.2f} €")
 if tipo_piloto == "Comandante":
     st.write(f"**Prima Responsabilidad:** {prima_responsabilidad_mensual:.2f} €")
-st.write(f"**Prima Hora Vuelo Total:** {prima_hora_vuelo_total:.2f} €")
+st.write(f"**Prima Hora Vuelo:** {horas_vuelo:.2f} h × {prima_hora_vuelo:.2f} €/h = {prima_hora_vuelo_total:.2f} €")
 if plus_nocturnidad_total > 0:
-    st.write(f"**Plus Nocturnidad:** {plus_nocturnidad_total:.2f} €")
+    st.write(f"**Plus Nocturnidad:** {horas_nocturnas:.2f} h × {plus_nocturnidad_por_hora:.2f} €/h = {plus_nocturnidad_total:.2f} €")
 st.write(f"**Prima Horas Sparring:** {prima_sparring_total:.2f} €")
-st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
+st.write(f"**Imaginaria:** {dias_imaginaria} días × {imaginaria:.2f} €/día = {imaginaria_total:.2f} €")
 st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
 st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
 st.write(f"**Dieta Curso:** {dieta_curso_total:.2f} €")
