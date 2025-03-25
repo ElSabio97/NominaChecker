@@ -80,6 +80,10 @@ else:  # Comandante
     tri_tre = 600  # €/mes en 2025
     prima_lifus = 25  # €/h en 2025
 
+# Límites de exención para dietas (según el contexto proporcionado)
+LIMITE_EXENTO_NACIONAL = 36.06  # €/día para dietas nacionales y cursos
+LIMITE_EXENTO_PERNOCTA = 53.34  # €/día para pernoctas nacionales
+
 nivel_salarial = st.sidebar.selectbox(
     "Nivel Salarial",
     options=niveles,
@@ -120,7 +124,7 @@ extras = st.sidebar.text_input(
 # Cálculo de Devengos
 # Salario Base (sin incluir pagas extras) y Paga Extra prorrateada
 salario_base_mensual_total = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
-paga_extra_mensual = (salario_base_mensual_total / 7)  # Prorrateo de 1 paga extra (1.808,33 / 7 = 258,33 €)
+paga_extra_mensual = (salario_base_mensual_total / 7)  # Prorrateo de 1 paga extra
 salario_base_mensual = salario_base_mensual_total - paga_extra_mensual  # Salario base ajustado
 
 prima_disponibilidad_mensual = (prima_disponibilidad_anual[nivel_salarial] / 12) * (dias_alta / 30)
@@ -129,7 +133,7 @@ prima_responsabilidad_mensual = (prima_responsabilidad_anual[nivel_salarial] / 1
 # Prima hora de vuelo y Plus de Nocturnidad
 if horas_nocturnas > 0:
     if horas_nocturnas > 3:
-        # Si las horas nocturnas superan 3 horas, todas las horas del servicio se factorizan por 1,5
+        # Si las horas nocturnas superan 3 horas, todas las horas del servicio se factorizan por 1, Hawkins
         prima_hora_vuelo_total = horas_vuelo * prima_hora_vuelo  # Base
         plus_nocturnidad_total = horas_vuelo * plus_nocturnidad_por_hora  # Plus adicional
     else:
@@ -145,18 +149,38 @@ else:
 prima_sparring_total = horas_sparring * prima_hora_vuelo
 
 imaginaria_total = dias_imaginaria * imaginaria
-dieta_vuelo_total = dias_dieta_vuelo * dieta_vuelo
-dieta_pernocta_total = dias_pernocta * dieta_pernocta
-dieta_curso_total = dias_curso * dieta_curso
 vacaciones_total = dias_vacaciones * compensacion_vacaciones
+
+# Cálculo de Dietas Exentas y Tributables
+# Dieta Vuelo
+dieta_vuelo_exenta = min(dieta_vuelo, LIMITE_EXENTO_NACIONAL) * dias_dieta_vuelo
+dieta_vuelo_tributable = (dieta_vuelo - min(dieta_vuelo, LIMITE_EXENTO_NACIONAL)) * dias_dieta_vuelo
+
+# Dieta Pernocta
+dieta_pernocta_exenta = min(dieta_pernocta, LIMITE_EXENTO_PERNOCTA) * dias_pernocta
+dieta_pernocta_tributable = (dieta_pernocta - min(dieta_pernocta, LIMITE_EXENTO_PERNOCTA)) * dias_pernocta
+
+# Dieta Curso
+dieta_curso_exenta = min(dieta_curso, LIMITE_EXENTO_NACIONAL) * dias_curso
+dieta_curso_tributable = (dieta_curso - min(dieta_curso, LIMITE_EXENTO_NACIONAL)) * dias_curso
+
+# Totales de dietas
+dieta_vuelo_total = dieta_vuelo_exenta + dieta_vuelo_tributable
+dieta_pernocta_total = dieta_pernocta_exenta + dieta_pernocta_tributable
+dieta_curso_total = dieta_curso_exenta + dieta_curso_tributable
+
+# Total de dietas exentas y tributables para incluir en devengos
+total_dietas_exentas = dieta_vuelo_exenta + dieta_pernocta_exenta + dieta_curso_exenta
+total_dietas_tributables = dieta_vuelo_tributable + dieta_pernocta_tributable + dieta_curso_tributable
+
 tri_tre_total = tri_tre if es_tri_tre else 0
 prima_lifus_total = horas_lifus * prima_lifus if tipo_piloto == "Comandante" else 0
 
-# Total Devengos (sin incluir Extras por ahora)
+# Total Devengos (incluyendo dietas exentas y tributables)
 total_devengos = (
     salario_base_mensual + paga_extra_mensual + prima_disponibilidad_mensual + prima_responsabilidad_mensual +
     prima_hora_vuelo_total + plus_nocturnidad_total + prima_sparring_total + imaginaria_total +
-    dieta_vuelo_total + dieta_pernocta_total + dieta_curso_total + vacaciones_total +
+    total_dietas_exentas + total_dietas_tributables + vacaciones_total +
     tri_tre_total + prima_lifus_total
 )
 
@@ -198,12 +222,17 @@ if prima_sparring_total > 0:
     st.write(f"**Prima Horas Sparring:** {prima_sparring_total:.2f} €")
 if imaginaria_total > 0:
     st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
-if dieta_vuelo_total > 0:
-    st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
-if dieta_pernocta_total > 0:
-    st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
-if dieta_curso_total > 0:
-    st.write(f"**Dieta Curso:** {dieta_curso_total:.2f} €")
+if total_dietas_exentas > 0 or total_dietas_tributables > 0:
+    st.subheader("Dietas")
+    if dieta_vuelo_total > 0:
+        st.write(f"**Dieta Vuelo Exenta:** {dieta_vuelo_exenta:.2f} €")
+        st.write(f"**Dieta Vuelo Tributable:** {dieta_vuelo_tributable:.2f} €")
+    if dieta_pernocta_total > 0:
+        st.write(f"**Dieta Pernocta Exenta:** {dieta_pernocta_exenta:.2f} €")
+        st.write(f"**Dieta Pernocta Tributable:** {dieta_pernocta_tributable:.2f} €")
+    if dieta_curso_total > 0:
+        st.write(f"**Dieta Curso Exenta:** {dieta_curso_exenta:.2f} €")
+        st.write(f"**Dieta Curso Tributable:** {dieta_curso_tributable:.2f} €")
 if vacaciones_total > 0:
     st.write(f"**Compensación Vacaciones:** {vacaciones_total:.2f} €")
 if tipo_piloto == "Comandante":
