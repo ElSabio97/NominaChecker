@@ -38,7 +38,6 @@ if tipo_piloto == "Primer Oficial":
     imaginaria = 45  # €/día
     compensacion_vacaciones = 95  # €/día
     dieta_vuelo = 65  # €/día
-    dieta_vuelo_exenta_por_dia = 41.85  # Deducción basada en el ejemplo del usuario
     dieta_pernocta = 95  # €/día
     dieta_curso = 70  # €/día
 else:  # Comandante
@@ -76,7 +75,6 @@ else:  # Comandante
     imaginaria = 45  # €/día
     compensacion_vacaciones = 95  # €/día
     dieta_vuelo = 65  # €/día
-    dieta_vuelo_exenta_por_dia = 41.85  # Deducción basada en el ejemplo del usuario
     dieta_pernocta = 95  # €/día
     dieta_curso = 70  # €/día
     tri_tre = 600  # €/mes en 2025
@@ -122,7 +120,7 @@ extras = st.sidebar.text_input(
 # Cálculo de Devengos
 # Salario Base (sin incluir pagas extras) y Paga Extra prorrateada
 salario_base_mensual_total = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
-paga_extra_mensual = (salario_base_mensual_total / 7)  # Prorrateo de 1 paga extra
+paga_extra_mensual = (salario_base_mensual_total / 7)  # Prorrateo de 1 paga extra (1.808,33 / 7 = 258,33 €)
 salario_base_mensual = salario_base_mensual_total - paga_extra_mensual  # Salario base ajustado
 
 prima_disponibilidad_mensual = (prima_disponibilidad_anual[nivel_salarial] / 12) * (dias_alta / 30)
@@ -148,8 +146,6 @@ prima_sparring_total = horas_sparring * prima_hora_vuelo
 
 imaginaria_total = dias_imaginaria * imaginaria
 dieta_vuelo_total = dias_dieta_vuelo * dieta_vuelo
-dieta_vuelo_exenta = dias_dieta_vuelo * dieta_vuelo_exenta_por_dia
-dieta_vuelo_tributabel = dieta_vuelo_total - dieta_vuelo_exenta
 dieta_pernocta_total = dias_pernocta * dieta_pernocta
 dieta_curso_total = dias_curso * dieta_curso
 vacaciones_total = dias_vacaciones * compensacion_vacaciones
@@ -160,7 +156,7 @@ prima_lifus_total = horas_lifus * prima_lifus if tipo_piloto == "Comandante" els
 total_devengos = (
     salario_base_mensual + paga_extra_mensual + prima_disponibilidad_mensual + prima_responsabilidad_mensual +
     prima_hora_vuelo_total + plus_nocturnidad_total + prima_sparring_total + imaginaria_total +
-    dieta_vuelo_tributabel + dieta_pernocta_total + dieta_curso_total + vacaciones_total +
+    dieta_vuelo_total + dieta_pernocta_total + dieta_curso_total + vacaciones_total +
     tri_tre_total + prima_lifus_total
 )
 
@@ -182,7 +178,7 @@ irpf = total_devengos * (irpf_porcentaje / 100)
 total_deducciones = seguridad_social + irpf
 
 # Importe Líquido
-importe_liquido = total_devengos - total_deducciones + dieta_vuelo_exenta  # Se suma la parte exenta al líquido
+importe_liquido = total_devengos - total_deducciones
 
 # Mostrar resultados
 st.header("Resumen de la Nómina")
@@ -203,9 +199,7 @@ if prima_sparring_total > 0:
 if imaginaria_total > 0:
     st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
 if dieta_vuelo_total > 0:
-    st.write(f"**Dieta Vuelo Total:** {dieta_vuelo_total:.2f} €")
-    st.write(f"**Dieta Vuelo Exenta:** {dieta_vuelo_exenta:.2f} €")
-    st.write(f"**Dieta Vuelo Tributable:** {dieta_vuelo_tributabel:.2f} €")
+    st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
 if dieta_pernocta_total > 0:
     st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
 if dieta_curso_total > 0:
@@ -223,7 +217,7 @@ if extras:
     st.subheader("Conceptos Extras")
     st.write(f"**Extras:** {extras} ({extras_importe:.2f} €)")
 
-st.subheader(f"**Total Devengos (sujetos a IRPF):** {total_devengos:.2f} €")
+st.subheader(f"**Total Devengos:** {total_devengos:.2f} €")
 
 st.write("---")
 st.write(f"**Seguridad Social:** -{seguridad_social:.2f} €")
