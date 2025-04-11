@@ -144,36 +144,39 @@ total_devengos = (
 
 # Mostrar resultados
 st.header("Resumen de la Nómina")
+
+# Orden específico: 1 Salario Base, 2 Prima Disponibilidad, 3 Imaginaria, 4 Plus Nocturnidad,
+# 5 Prima Hora Vuelo, 6 Media Días de Vacaciones, 7 Dieta Vuelo, 8 Paga Extra
 if salario_base_mensual > 0:
     st.write(f"**Salario Base:** {salario_base_mensual:.2f} €")
-if paga_extra_mensual > 0:
-    st.write(f"**Paga Extra (prorrateada):** {paga_extra_mensual:.2f} €")
 if prima_disponibilidad_mensual > 0:
     st.write(f"**Prima Disponibilidad:** {prima_disponibilidad_mensual:.2f} €")
-if tipo_piloto == "Comandante" and prima_responsabilidad_mensual > 0:
-    st.write(f"**Prima Responsabilidad:** {prima_responsabilidad_mensual:.2f} €")
-if prima_hora_vuelo_total > 0:
-    st.write(f"**Prima Hora Vuelo:** {prima_hora_vuelo_total:.2f} €")
-if plus_nocturnidad_total > 0:
-    st.write(f"**Plus Nocturnidad:** {plus_nocturnidad_total:.2f} €")
-if prima_sparring_total > 0:
-    st.write(f"**Prima Horas Sparring:** {prima_sparring_total:.2f} €")
 if imaginaria_total > 0:
     st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
+if plus_nocturnidad_total > 0:
+    st.write(f"**Plus Nocturnidad:** {plus_nocturnidad_total:.2f} €")
+if prima_hora_vuelo_total > 0:
+    st.write(f"**Prima Hora Vuelo:** {prima_hora_vuelo_total:.2f} €")
+if vacaciones_total > 0:
+    st.write(f"**Compensación Vacaciones:** {vacaciones_total:.2f} €")
 if dieta_vuelo_total > 0:
-    st.info("Suma de dieta vuelo exenta y tributable")
-    st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
+    st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €", help="Suma de dieta vuelo exenta y tributable")
+if paga_extra_mensual > 0:
+    st.write(f"**Paga Extra (prorrateada):** {paga_extra_mensual:.2f} €")
+
+# Resto de devengos (sin orden específico)
+if tipo_piloto == "Comandante" and prima_responsabilidad_mensual > 0:
+    st.write(f"**Prima Responsabilidad:** {prima_responsabilidad_mensual:.2f} €")
+if prima_sparring_total > 0:
+    st.write(f"**Prima Horas Sparring:** {prima_sparring_total:.2f} €")
 if dieta_pernocta_total > 0:
     st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
 if dieta_curso_total > 0:
     st.write(f"**Dieta Curso:** {dieta_curso_total:.2f} €")
-if vacaciones_total > 0:
-    st.write(f"**Compensación Vacaciones:** {vacaciones_total:.2f} €")
-if tipo_piloto == "Comandante":
-    if tri_tre_total > 0:
-        st.write(f"**Plus TRI/TRE:** {tri_tre_total:.2f} €")
-    if prima_lifus_total > 0:
-        st.write(f"**Prima Horas LIFUS:** {prima_lifus_total:.2f} €")
+if tipo_piloto == "Comandante" and tri_tre_total > 0:
+    st.write(f"**Plus TRI/TRE:** {tri_tre_total:.2f} €")
+if tipo_piloto == "Comandante" and prima_lifus_total > 0:
+    st.write(f"**Prima Horas LIFUS:** {prima_lifus_total:.2f} €")
 if extras_importe > 0:
     st.write(f"**Extras:** {extras_importe:.2f} €")
 
