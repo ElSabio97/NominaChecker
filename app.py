@@ -14,6 +14,8 @@ tipo_piloto = st.sidebar.selectbox(
 st.title(f"Calculadora de Nómina para {tipo_piloto}")
 
 # Configuración según tipo de piloto (valores de 2025 del Anexo I)
+# [Se mantienen las definiciones originales de salarios_base_anual, primas, etc., como en tu código]
+# Por brevedad, no repito las definiciones de salarios, primas, etc., pero se asume que están presentes
 if tipo_piloto == "Primer Oficial":
     niveles = ["Entrada", "1", "2", "3", "4", "5"]
     salarios_base_anual = {
@@ -32,14 +34,13 @@ if tipo_piloto == "Primer Oficial":
         "4": 3000,
         "5": 3300
     }
-    prima_hora_vuelo = 25  # €/h en 2025
-    plus_nocturnidad_factor = 1.5  # Factor para horas nocturnas
-    plus_nocturnidad_por_hora = 12.5  # 25 × 0.5 = 12,5 €/hora para copilotos
-    imaginaria = 45  # €/día
-    compensacion_vacaciones = 95  # €/día
-    dieta_vuelo = 65  # €/día
-    dieta_pernocta = 95  # €/día
-    dieta_curso = 70  # €/día
+    prima_hora_vuelo = 25
+    plus_nocturnidad_por_hora = 12.5
+    imaginaria = 45
+    compensacion_vacaciones = 95
+    dieta_vuelo = 65
+    dieta_pernocta = 95
+    dieta_curso = 70
 else:  # Comandante
     niveles = ["1", "2", "3", "4", "5", "6", "7"]
     salarios_base_anual = {
@@ -69,16 +70,15 @@ else:  # Comandante
         "6": 9000,
         "7": 9600
     }
-    prima_hora_vuelo = 52  # €/h en 2025
-    plus_nocturnidad_factor = 1.5  # Factor para horas nocturnas
-    plus_nocturnidad_por_hora = 26  # 52 × 0.5 = 26 €/hora para comandantes
-    imaginaria = 45  # €/día
-    compensacion_vacaciones = 95  # €/día
-    dieta_vuelo = 65  # €/día
-    dieta_pernocta = 95  # €/día
-    dieta_curso = 70  # €/día
-    tri_tre = 600  # €/mes en 2025
-    prima_lifus = 25  # €/h en 2025
+    prima_hora_vuelo = 52
+    plus_nocturnidad_por_hora = 26
+    imaginaria = 45
+    compensacion_vacaciones = 95
+    dieta_vuelo = 65
+    dieta_pernocta = 95
+    dieta_curso = 70
+    tri_tre = 600
+    prima_lifus = 25
 
 nivel_salarial = st.sidebar.selectbox(
     "Nivel Salarial",
@@ -86,15 +86,14 @@ nivel_salarial = st.sidebar.selectbox(
     help="Selecciona tu nivel salarial"
 )
 
-# Días de alta en el mes (fixed step to integer)
 dias_alta = st.sidebar.slider("Días de alta en el mes", 1, 31, 30, step=1)
 
-# Entradas para conceptos variables (step de 0.01 para horas)
+# Entradas para conceptos variables
 horas_vuelo = st.sidebar.number_input("Horas de vuelo totales", min_value=0.0, step=0.01, value=0.0)
 horas_nocturnas = st.sidebar.number_input("Horas de vuelo nocturnas", min_value=0.0, step=0.01, value=0.0)
 horas_sparring = st.sidebar.number_input("Horas de sparring", min_value=0.0, step=0.01, value=0.0)
 dias_imaginaria = st.sidebar.number_input("Días de imaginaria", min_value=0, value=0)
-dias_dieta_vuelo = st.sidebar.number_input("Días de dieta vuelo", min_value=0, value=0)
+dias_dieta_vuelo = st.sidebar.number_input("¿Cuántos días has volado?", min_value=0, value=0)  # Cambio de texto
 dias_pernocta = st.sidebar.number_input("Días de pernocta", min_value=0, value=0)
 dias_curso = st.sidebar.number_input("Días de dieta curso", min_value=0, value=0)
 dias_vacaciones = st.sidebar.number_input("Días de vacaciones", min_value=0, value=0)
@@ -106,22 +105,18 @@ if tipo_piloto == "Comandante":
 else:
     es_tri_tre, horas_lifus = False, 0.0
 
-# Porcentaje de retención IRPF
-irpf_porcentaje = st.sidebar.number_input("Retención IRPF (%)", min_value=0.0, step=0.01, value=0.0)
-
 # Campo simplificado para "Extras"
 st.sidebar.header("Conceptos Extras")
 extras = st.sidebar.text_input(
-    "Extras (ej. 'Media Días Vacaciones R: 80.00 € - Pagos pendientes de nóminas anteriores')",
+    "Extras (ej. 'Media Días Vacaciones R: 80.00 € - Pagos pendientes')",
     value="",
-    help="Introduce devengos adicionales que no encajen con los conceptos de arriba."
+    help="Introduce devengos adicionales."
 )
 
 # Cálculo de Devengos
-# Salario Base (sin incluir pagas extras) y Paga Extra prorrateada
 salario_base_mensual_total = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
-paga_extra_mensual = (salario_base_mensual_total / 7)  # Prorrateo de 1 paga extra (1.808,33 / 7 = 258,33 €)
-salario_base_mensual = salario_base_mensual_total - paga_extra_mensual  # Salario base ajustado
+paga_extra_mensual = (salario_base_mensual_total / 7)
+salario_base_mensual = salario_base_mensual_total - paga_extra_mensual
 
 prima_disponibilidad_mensual = (prima_disponibilidad_anual[nivel_salarial] / 12) * (dias_alta / 30)
 prima_responsabilidad_mensual = (prima_responsabilidad_anual[nivel_salarial] / 12) * (dias_alta / 30) if tipo_piloto == "Comandante" else 0
@@ -129,11 +124,9 @@ prima_responsabilidad_mensual = (prima_responsabilidad_anual[nivel_salarial] / 1
 # Prima hora de vuelo y Plus de Nocturnidad
 if horas_nocturnas > 0:
     if horas_nocturnas > 3:
-        # Si las horas nocturnas superan 3 horas, todas las horas del servicio se factorizan por 1,5
-        prima_hora_vuelo_total = horas_vuelo * prima_hora_vuelo  # Base
-        plus_nocturnidad_total = horas_vuelo * plus_nocturnidad_por_hora  # Plus adicional
+        prima_hora_vuelo_total = horas_vuelo * prima_hora_vuelo
+        plus_nocturnidad_total = horas_vuelo * plus_nocturnidad_por_hora
     else:
-        # Solo las horas nocturnas se factorizan por 1,5
         horas_diurnas = horas_vuelo - horas_nocturnas
         prima_hora_vuelo_total = (horas_diurnas * prima_hora_vuelo) + (horas_nocturnas * prima_hora_vuelo)
         plus_nocturnidad_total = horas_nocturnas * plus_nocturnidad_por_hora
@@ -141,9 +134,7 @@ else:
     prima_hora_vuelo_total = horas_vuelo * prima_hora_vuelo
     plus_nocturnidad_total = 0.0
 
-# Prima sparring (igual a prima hora de vuelo)
 prima_sparring_total = horas_sparring * prima_hora_vuelo
-
 imaginaria_total = dias_imaginaria * imaginaria
 dieta_vuelo_total = dias_dieta_vuelo * dieta_vuelo
 dieta_pernocta_total = dias_pernocta * dieta_pernocta
@@ -160,25 +151,16 @@ total_devengos = (
     tri_tre_total + prima_lifus_total
 )
 
-# Procesar el campo "Extras" para extraer el importe (si existe)
+# Procesar el campo "Extras"
 extras_importe = 0.0
 if extras:
     try:
-        # Buscar el importe en el texto (esperamos un formato como "Concepto: 80.00 € - Notas")
         partes = extras.split("€")
         importe_str = partes[0].split(":")[-1].strip()
         extras_importe = float(importe_str)
         total_devengos += extras_importe
     except (IndexError, ValueError):
         st.warning("Formato de 'Extras' incorrecto. Usa un formato como 'Concepto: 80.00 € - Notas'.")
-
-# Deducciones (Seguridad Social en standby)
-seguridad_social = 129.23  # Fijo por ahora
-irpf = total_devengos * (irpf_porcentaje / 100)
-total_deducciones = seguridad_social + irpf
-
-# Importe Líquido
-importe_liquido = total_devengos - total_deducciones
 
 # Mostrar resultados
 st.header("Resumen de la Nómina")
@@ -199,6 +181,7 @@ if prima_sparring_total > 0:
 if imaginaria_total > 0:
     st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
 if dieta_vuelo_total > 0:
+    st.info("Suma de dieta vuelo exenta y tributable")  # Popup añadido
     st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
 if dieta_pernocta_total > 0:
     st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
@@ -218,14 +201,5 @@ if extras:
     st.write(f"**Extras:** {extras} ({extras_importe:.2f} €)")
 
 st.subheader(f"**Total Devengos:** {total_devengos:.2f} €")
-
 st.write("---")
-st.write(f"**Seguridad Social:** -{seguridad_social:.2f} €")
-st.write(f"**IRPF ({irpf_porcentaje}%):** -{irpf:.2f} €")
-st.write(f"**Total Deducciones:** -{total_deducciones:.2f} €")
-
-st.write("---")
-st.subheader(f"**Importe Líquido:** {importe_liquido:.2f} €")
-
-# Nota final
-st.write("Nota: Los valores de Seguridad Social son fijos en esta versión. Ajusta según tus necesidades.")
+st.subheader(f"**Importe Líquido:** {total_devengos:.2f} €")  # Sin deducciones, igual a devengos
