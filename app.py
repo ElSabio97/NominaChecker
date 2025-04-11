@@ -14,8 +14,6 @@ tipo_piloto = st.sidebar.selectbox(
 st.title(f"Calculadora de Nómina para {tipo_piloto}")
 
 # Configuración según tipo de piloto (valores de 2025 del Anexo I)
-# [Se mantienen las definiciones originales de salarios_base_anual, primas, etc., como en tu código]
-# Por brevedad, no repito las definiciones de salarios, primas, etc., pero se asume que están presentes
 if tipo_piloto == "Primer Oficial":
     niveles = ["Entrada", "1", "2", "3", "4", "5"]
     salarios_base_anual = {
@@ -93,10 +91,11 @@ horas_vuelo = st.sidebar.number_input("Horas de vuelo totales", min_value=0.0, s
 horas_nocturnas = st.sidebar.number_input("Horas de vuelo nocturnas", min_value=0.0, step=0.01, value=0.0)
 horas_sparring = st.sidebar.number_input("Horas de sparring", min_value=0.0, step=0.01, value=0.0)
 dias_imaginaria = st.sidebar.number_input("Días de imaginaria", min_value=0, value=0)
-dias_dieta_vuelo = st.sidebar.number_input("¿Cuántos días has volado?", min_value=0, value=0)  # Cambio de texto
+dias_dieta_vuelo = st.sidebar.number_input("¿Cuántos días has volado?", min_value=0, value=0)
 dias_pernocta = st.sidebar.number_input("Días de pernocta", min_value=0, value=0)
 dias_curso = st.sidebar.number_input("Días de dieta curso", min_value=0, value=0)
 dias_vacaciones = st.sidebar.number_input("Días de vacaciones", min_value=0, value=0)
+extras_importe = st.sidebar.number_input("Extras", min_value=0.0, step=0.01, value=0.0, help="Introduce el importe de conceptos adicionales.")
 
 # Conceptos exclusivos de Comandantes
 if tipo_piloto == "Comandante":
@@ -104,14 +103,6 @@ if tipo_piloto == "Comandante":
     horas_lifus = st.sidebar.number_input("Horas de vuelo LIFUS", min_value=0.0, step=0.01, value=0.0)
 else:
     es_tri_tre, horas_lifus = False, 0.0
-
-# Campo simplificado para "Extras"
-st.sidebar.header("Conceptos Extras")
-extras = st.sidebar.text_input(
-    "Extras (ej. 'Media Días Vacaciones R: 80.00 € - Pagos pendientes')",
-    value="",
-    help="Introduce devengos adicionales."
-)
 
 # Cálculo de Devengos
 salario_base_mensual_total = (salarios_base_anual[nivel_salarial] / 12) * (dias_alta / 30)
@@ -143,24 +134,13 @@ vacaciones_total = dias_vacaciones * compensacion_vacaciones
 tri_tre_total = tri_tre if es_tri_tre else 0
 prima_lifus_total = horas_lifus * prima_lifus if tipo_piloto == "Comandante" else 0
 
-# Total Devengos (sin incluir Extras por ahora)
+# Total Devengos (incluye Extras directamente)
 total_devengos = (
     salario_base_mensual + paga_extra_mensual + prima_disponibilidad_mensual + prima_responsabilidad_mensual +
     prima_hora_vuelo_total + plus_nocturnidad_total + prima_sparring_total + imaginaria_total +
     dieta_vuelo_total + dieta_pernocta_total + dieta_curso_total + vacaciones_total +
-    tri_tre_total + prima_lifus_total
+    tri_tre_total + prima_lifus_total + extras_importe
 )
-
-# Procesar el campo "Extras"
-extras_importe = 0.0
-if extras:
-    try:
-        partes = extras.split("€")
-        importe_str = partes[0].split(":")[-1].strip()
-        extras_importe = float(importe_str)
-        total_devengos += extras_importe
-    except (IndexError, ValueError):
-        st.warning("Formato de 'Extras' incorrecto. Usa un formato como 'Concepto: 80.00 € - Notas'.")
 
 # Mostrar resultados
 st.header("Resumen de la Nómina")
@@ -181,7 +161,7 @@ if prima_sparring_total > 0:
 if imaginaria_total > 0:
     st.write(f"**Imaginaria:** {imaginaria_total:.2f} €")
 if dieta_vuelo_total > 0:
-    st.info("Suma de dieta vuelo exenta y tributable")  # Popup añadido
+    st.info("Suma de dieta vuelo exenta y tributable")
     st.write(f"**Dieta Vuelo:** {dieta_vuelo_total:.2f} €")
 if dieta_pernocta_total > 0:
     st.write(f"**Dieta Pernocta:** {dieta_pernocta_total:.2f} €")
@@ -194,12 +174,7 @@ if tipo_piloto == "Comandante":
         st.write(f"**Plus TRI/TRE:** {tri_tre_total:.2f} €")
     if prima_lifus_total > 0:
         st.write(f"**Prima Horas LIFUS:** {prima_lifus_total:.2f} €")
-
-# Mostrar concepto extra si existe
-if extras:
-    st.subheader("Conceptos Extras")
-    st.write(f"**Extras:** {extras} ({extras_importe:.2f} €)")
+if extras_importe > 0:
+    st.write(f"**Extras:** {extras_importe:.2f} €")
 
 st.subheader(f"**Total Devengos:** {total_devengos:.2f} €")
-st.write("---")
-st.subheader(f"**Importe Líquido:** {total_devengos:.2f} €")  # Sin deducciones, igual a devengos
