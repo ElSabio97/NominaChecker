@@ -1,5 +1,8 @@
 import streamlit as st
 
+# Configuración de la página
+st.set_page_config(page_title="NominaChecker", page_icon="💲")
+
 # Sidebar para entradas del usuario
 st.sidebar.header("Datos del Piloto")
 
