@@ -183,4 +183,4 @@ if tipo_piloto == "Comandante" and prima_lifus_total > 0:
 if extras_importe > 0:
     st.write(f"**Extras:** {extras_importe:.2f} €")
 
-st.subheader(f"**Total Devengos:** {total_devengos:.2f} €")
+st.subheader(f"**Total Bruto:** {total_devengos:.2f} €")
